@@ -1,0 +1,12 @@
+PID: 4232
+PPID: 4231
+Nice: 0
+TTY: /dev/pts/0
+Real User: yash
+Effective User: yash
+PID: 4233
+PPID: 4231
+Nice: 0
+TTY: /dev/pts/0
+Real User: yash
+Effective User: yash
