@@ -1,0 +1,22 @@
+#include<stdio.h>
+#include<unistd.h>
+void *t()
+{
+	printf("\ntyt\n");
+}
+int main()
+{
+	int p ;
+	pthread_t tid;
+	pthread_attr_t attr;
+	p=fork();
+	if(p==0)
+	{
+		fork();
+		pthread_create(&tid,&attr,t);
+		printf("tt\n");
+		pthread_join(tid,NULL);
+	}
+	fork();
+	printf("hi\n");
+}

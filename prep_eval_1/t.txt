@@ -1,0 +1,18 @@
+total 36K
+drwxrwxr-x 2 yash yash 4.0K Aug 24 04:19 .
+drwxrwxr-x 6 yash yash 4.0K Aug 24 03:19 ..
+-rw-rw-r-- 1 yash yash    3 Aug 24 04:19 11.txt
+-rwxrwxr-x 1 yash yash  16K Aug 24 04:01 a.out
+-rw-rw-r-- 1 yash yash    0 Aug 24 04:14 art1.txt
+-rw-rw-r-- 1 yash yash  308 Aug 24 03:35 eff_real_user.c
+-rw-rw-r-- 1 yash yash  234 Aug 24 04:01 exec.c
+-rw-rw-r-- 1 yash yash    0 Aug 24 04:21 t.txt
+total 40K
+drwxrwxr-x 2 yash yash 4.0K Aug 24 04:19 .
+drwxrwxr-x 6 yash yash 4.0K Aug 24 03:19 ..
+-rw-rw-r-- 1 yash yash    3 Aug 24 04:19 11.txt
+-rwxrwxr-x 1 yash yash  16K Aug 24 04:01 a.out
+-rw-rw-r-- 1 yash yash    0 Aug 24 04:14 art1.txt
+-rw-rw-r-- 1 yash yash  308 Aug 24 03:35 eff_real_user.c
+-rw-rw-r-- 1 yash yash  234 Aug 24 04:01 exec.c
+-rw-rw-r-- 1 yash yash  394 Aug 24 04:21 t.txt

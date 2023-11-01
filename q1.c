@@ -1,75 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
+#include <string.h>
+
+#define BUFFER_SIZE 100
+
 int main() {
-    FILE *procatt0, *procatt1;
-    procatt0 = fopen("procatt0.txt", "w");
-    procatt1 = fopen("procatt1.txt", "w");
-
-    if (procatt0 == NULL || procatt1 == NULL) {
-        perror("Error opening files");
-        exit(EXIT_FAILURE);
+    int pipe_fd[2]; // Pipe file descriptors
+    char input_string[BUFFER_SIZE];
+    char concatenated_string[BUFFER_SIZE * 2];
+    
+    if (pipe(pipe_fd) == -1) {
+        perror("Pipe creation failed");
+        return 1;
     }
 
-    pid_t pid;
-
-    // Iterate through processes
-    for (pid = 1;pid<=2; pid++) {
-        // Fork to create a child process
-        pid_t child_pid = fork();
-
-        if (child_pid < 0) {
-            perror("Fork error");
-            exit(EXIT_FAILURE);
-        } else if (child_pid == 0) {
-            // Child process
-            // Gather process attributes and write to appropriate file
-
-            // a. PID
-            fprintf(procatt0, "PID: %d\n", getpid());
-            fprintf(procatt1, "PID: %d\n", getpid());
-
-            // b. PPID
-            fprintf(procatt0, "PPID: %d\n", getppid());
-            fprintf(procatt1, "PPID: %d\n", getppid());
-
-            // c. Nice number
-            int nice_value = nice(0);
-            fprintf(procatt0, "Nice: %d\n", nice_value);
-            fprintf(procatt1, "Nice: %d\n", nice_value);
-
-            // d. TTY
-            fprintf(procatt0, "TTY: %s\n", ttyname(STDIN_FILENO));
-            fprintf(procatt1, "TTY: %s\n", ttyname(STDIN_FILENO));
-
-            // e. User name of RUID and EUID
-            struct rusage usage;
-            getrusage(RUSAGE_SELF, &usage);
-            fprintf(procatt0, "Real User: %s\n", getlogin());
-            fprintf(procatt0, "Effective User: %s\n", getlogin());
-            fprintf(procatt1, "Real User: %s\n", getlogin());
-            fprintf(procatt1, "Effective User: %s\n", getlogin());
-
-            exit(EXIT_SUCCESS);
-        } else {
-            // Parent process
-            int status;
-            waitpid(child_pid, &status, 0);
-
-            // Check if we've reached the maximum number of processes
-            if (pid >= 10) {
-                break;
-            }
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("Fork failed");
+        return 1;
+    }
+    
+    if (pid == 0) { // P2 process
+        close(pipe_fd[1]); // Close the write end of the pipe in P2
+        
+        // Read the string from P1
+        read(pipe_fd[0], input_string, BUFFER_SIZE);
+        close(pipe_fd[0]);
+        
+        // Concatenate the received string with another string
+        char additional_string[] = " (concatenated in P2)";
+        int input_len = strlen(input_string);
+        int additional_len = strlen(additional_string);
+        
+        // Concatenate manually without using string functions
+        int i, j;
+        for (i = 0; i < input_len; i++) {
+            concatenated_string[i] = input_string[i];
         }
+        for (j = 0; j < additional_len; j++) {
+            concatenated_string[input_len + j] = additional_string[j];
+        }
+        
+        concatenated_string[input_len + additional_len] = '\0'; // Null-terminate the concatenated string
+        
+        // Send the concatenated string back to P1
+        write(pipe_fd[1], concatenated_string, strlen(concatenated_string) + 1);
+        close(pipe_fd[1]);
+    } else { // P1 process
+        close(pipe_fd[0]); // Close the read end of the pipe in P1
+        
+        printf("Enter a string: ");
+        fgets(input_string, BUFFER_SIZE, stdin);
+        input_string[strlen(input_string) - 1] = '\0'; // Remove the newline character
+        
+        // Send the string to P2
+        write(pipe_fd[1], input_string, strlen(input_string) + 1);
+        close(pipe_fd[1]);
+        
+        // Wait for P2 to send back the concatenated string
+        wait(NULL);
+        
+        // Read the concatenated string from P2 and print it
+        read(pipe_fd[0], concatenated_string, BUFFER_SIZE * 2);
+        printf("Concatenated string received from P2: %s\n", concatenated_string);
+        close(pipe_fd[0]);
     }
-
-    fclose(procatt0);
-    fclose(procatt1);
-
+    
     return 0;
 }
-
